@@ -5,6 +5,7 @@ require 'chatterbot/dsl'
 require 'redd'
 
 puts "Initializing bot..."
+sleep 600
 
 # Setup twitter
 consumer_key ENV['CONSUMER_KEY']
