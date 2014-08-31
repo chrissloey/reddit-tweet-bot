@@ -1,0 +1,11 @@
+bot:
+  build: .
+  environment:
+    - "CONSUMER_KEY="
+    - "CONSUMER_SECRET="
+    - "SECRET="
+    - "TOKEN="
+    - "REDDIT_USERNAME="
+    - "REDDIT_PASSWORD="
+    - "THRESHOLD="
+    - "SUBREDDIT="
