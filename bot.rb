@@ -4,6 +4,8 @@ require 'rubygems'
 require 'chatterbot/dsl'
 require 'redd'
 
+puts "Initializing bot..."
+
 # Setup twitter
 consumer_key ENV['CONSUMER_KEY']
 consumer_secret ENV['CONSUMER_SECRET']
@@ -24,6 +26,8 @@ COMMENTS_LINK_LENGTH = 26 # space, 2 brackets, link
 ARTICLE_LINK_LENGTH = 24 # space, link
 
 THRESHOLD = ENV['THRESHOLD'].to_i
+
+puts "... initialized"
 
 loop do
   puts "Fetching posts"
@@ -53,7 +57,8 @@ loop do
 
     # Mark as saved to prevent tweeting again
     post.save
+    sleep 10
   end
 
-  sleep 60
+  sleep 120
 end
