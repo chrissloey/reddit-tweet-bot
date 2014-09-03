@@ -4,8 +4,9 @@ require 'rubygems'
 require 'chatterbot/dsl'
 require 'redd'
 
-puts "Initializing bot..."
-sleep 600
+logger = Logger.new "/bot/log/bot.log"
+logger.debug "Initializing bot #{ENV['THRESHOLD']}..."
+sleep 120 + rand(480)
 
 # Setup twitter
 consumer_key ENV['CONSUMER_KEY']
@@ -28,38 +29,45 @@ ARTICLE_LINK_LENGTH = 24 # space, link
 
 THRESHOLD = ENV['THRESHOLD'].to_i
 
-puts "... initialized"
+logger.debug "... initialized"
 
 loop do
-  puts "Fetching posts"
-  posts = reddit.get_hot(ENV['SUBREDDIT']).select {|p| p.score > THRESHOLD && !p.saved}
-  puts "Got #{posts.count} posts to tweet"
-  posts.each do |post|
-    puts "Found #{post.title}"
+  logger.debug "Fetching posts"
+  hot_posts = reddit.get_hot(ENV['SUBREDDIT'])
+  if hot_posts
+    logger.debug "Got #{hot_posts.count} hot posts"
+    posts = hot_posts.select {|p| p.score > THRESHOLD && !p.saved}
+    logger.debug "Got #{posts.count} posts to tweet"
+    posts.each do |post|
+      logger.debug "Tweeting post #{post.title}"
 
-    # How big can the title be?
-    max_title_length = TWEET_LENGTH - ARTICLE_LINK_LENGTH
-    if post.self?
-      max_title_length -= COMMENTS_LINK_LENGTH
+      # How big can the title be?
+      max_title_length = TWEET_LENGTH - ARTICLE_LINK_LENGTH
+      if post.self?
+        max_title_length -= COMMENTS_LINK_LENGTH
+      end
+
+      # Truncate title if necessary
+      title = post.title
+      if title.length > max_title_length
+        title = "#{title[0..max_title_length-1]}..."
+      end
+
+      # Tweet then save so that we don't tweet it again
+      if post.self?
+        tweet "#{title} #{post.url}"
+      else
+        tweet "#{title} #{post.url} (#{post.permalink})"
+      end
+
+      logger.debug "Tweeted post #{post.title}"
+
+      # Mark as saved to prevent tweeting again
+      logger.debug "saving #{post.title}"
+      post.save
+      sleep 20 + rand(20)
     end
-
-    # Truncate title if necessary
-    title = post.title
-    if title.length > max_title_length
-      title = "#{title[0..max_title_length-1]}..."
-    end
-
-    # Tweet then save so that we don't tweet it again
-    if post.self?
-      tweet "#{title} #{post.url}"
-    else
-      tweet "#{title} #{post.url} (#{post.permalink})"
-    end
-
-    # Mark as saved to prevent tweeting again
-    post.save
-    sleep 10
   end
 
-  sleep 120
+  sleep 120 + rand(480)
 end

@@ -12,4 +12,4 @@ RUN bundle install
 # Code
 ADD . /bot
 
-CMD ["ruby", "bot.rb"]
+CMD ["ruby", "bot.rb", ">>", "/bot/log/bot.log"]
