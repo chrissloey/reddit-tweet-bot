@@ -6,7 +6,8 @@ require 'redd'
 
 logger = Logger.new "/bot/log/bot.log"
 logger.debug "Initializing bot #{ENV['THRESHOLD']}..."
-sleep 120 + rand(480)
+delay = 600 # Delay on first startup to prevent spamming
+sleep delay
 
 # Setup twitter
 consumer_key ENV['CONSUMER_KEY']
@@ -65,9 +66,10 @@ loop do
       # Mark as saved to prevent tweeting again
       logger.debug "saving #{post.title}"
       post.save
-      sleep 20 + rand(20)
+      sleep 120 + rand(120) + delay
     end
   end
 
-  sleep 120 + rand(480)
+  sleep 120 + rand(480) + delay
+  delay /= 2
 end
