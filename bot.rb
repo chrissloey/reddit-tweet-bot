@@ -4,7 +4,8 @@ require 'rubygems'
 require 'chatterbot/dsl'
 require 'redd'
 
-logger = Logger.new "/bot/log/bot.log"
+logfile = File.open('/bot/log/bot.log', File::WRONLY | File::APPEND)
+logger = Logger.new(logfile)
 logger.debug "Initializing bot #{ENV['THRESHOLD']}..."
 delay = 600 # Delay on first startup to prevent spamming
 sleep delay
