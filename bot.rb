@@ -35,8 +35,17 @@ logger.debug "... initialized"
 
 loop do
   logger.debug "Fetching posts"
-  hot_posts = reddit.get_hot(ENV['SUBREDDIT'])
-  if hot_posts
+  begin
+    hot_posts = reddit.get_hot(ENV['SUBREDDIT'])
+  rescue => e
+    logger.error "Catching exception while getting hot reddit posts"
+    logger.error e.inspect
+    logger.error e.backtrace
+    hot_posts = nil
+    delay = 600
+  end
+
+  if hot_posts.present? and !hot_posts.empty?
     logger.debug "Got #{hot_posts.count} hot posts"
     posts = hot_posts.select {|p| p.score > THRESHOLD && !p.saved}
     logger.debug "Got #{posts.count} posts to tweet"
