@@ -4,8 +4,14 @@ require 'rubygems'
 require 'chatterbot/dsl'
 require 'redd'
 
-logfile = File.open('/bot/log/bot.log', File::WRONLY | File::APPEND)
-logger = Logger.new(logfile)
+log_file_location = ENV['LOG_FILE']
+if log_file_location.nil? or log_file_location.empty?
+  logger = Logger.new(STDOUT)
+else
+  logfile = File.open(ENV['LOG_FILE'], File::WRONLY | File::APPEND)
+  logger = Logger.new(logfile)
+end
+
 logger.debug "Initializing bot #{ENV['THRESHOLD']}..."
 delay = 600 # Delay on first startup to prevent spamming
 sleep delay
@@ -45,7 +51,7 @@ loop do
     delay = 600
   end
 
-  if hot_posts.present? and !hot_posts.empty?
+  if !hot_posts.nil? and !hot_posts.empty?
     logger.debug "Got #{hot_posts.count} hot posts"
     posts = hot_posts.select {|p| p.score > THRESHOLD && !p.saved}
     logger.debug "Got #{posts.count} posts to tweet"
