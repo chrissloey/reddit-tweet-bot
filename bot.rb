@@ -4,15 +4,7 @@ require 'rubygems'
 require 'chatterbot/dsl'
 require 'redd'
 
-log_file_location = ENV['LOG_FILE']
-if log_file_location.nil? or log_file_location.empty?
-  logger = Logger.new(STDOUT)
-else
-  logfile = File.open(ENV['LOG_FILE'], File::WRONLY | File::APPEND)
-  logger = Logger.new(logfile)
-end
-
-logger.debug "Initializing bot #{ENV['THRESHOLD']}..."
+puts "Initializing bot #{ENV['THRESHOLD']}..."
 delay = 600 # Delay on first startup to prevent spamming
 sleep delay
 
@@ -37,26 +29,18 @@ ARTICLE_LINK_LENGTH = 24 # space, link
 
 THRESHOLD = ENV['THRESHOLD'].to_i
 
-logger.debug "... initialized"
+puts "... initialized"
 
 loop do
-  logger.debug "Fetching posts"
-  begin
-    hot_posts = reddit.get_hot(ENV['SUBREDDIT'])
-  rescue => e
-    logger.error "Catching exception while getting hot reddit posts"
-    logger.error e.inspect
-    logger.error e.backtrace
-    hot_posts = nil
-    delay = 600
-  end
+  puts "Fetching posts"
+  hot_posts = reddit.get_hot(ENV['SUBREDDIT'])
 
   if !hot_posts.nil? and !hot_posts.empty?
-    logger.debug "Got #{hot_posts.count} hot posts"
+    puts "Got #{hot_posts.count} hot posts"
     posts = hot_posts.select {|p| p.score > THRESHOLD && !p.saved}
-    logger.debug "Got #{posts.count} posts to tweet"
+    puts "Got #{posts.count} posts to tweet"
     posts.each do |post|
-      logger.debug "Tweeting post #{post.title}"
+      puts "Tweeting post #{post.title}"
 
       # How big can the title be?
       max_title_length = TWEET_LENGTH - ARTICLE_LINK_LENGTH
@@ -77,10 +61,10 @@ loop do
         tweet "#{title} #{post.url} (#{post.permalink})"
       end
 
-      logger.debug "Tweeted post #{post.title}"
+      puts "Tweeted post #{post.title}"
 
       # Mark as saved to prevent tweeting again
-      logger.debug "saving #{post.title}"
+      puts "Saving #{post.title}"
       post.save
       sleep 120 + rand(120) + delay
     end
