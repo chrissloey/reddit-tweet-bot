@@ -1,0 +1,30 @@
+machine:
+  services:
+    - docker
+
+checkout:
+  post:
+    # Set git timestamps for consistent docker cache
+    - chmod +x ci/fix_cache.sh
+    - ./ci/fix_cache.sh
+
+dependencies:
+  override:
+    - docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS tutum.co
+    - docker pull tutum.co/addjam/twitter_bot || true
+    - docker build -t tutum.co/addjam/twitter_bot .:
+        timeout: 900
+
+database:
+  override:
+    - echo "No DB"
+
+test:
+  override:
+    - echo "No tests"
+
+deployment:
+  production:
+    branch: master
+    commands:
+      - docker push tutum.co/addjam/twitter_bot
